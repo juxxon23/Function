@@ -1,4 +1,5 @@
 import pandas as pd
+#from collections import Counter
 
 """
 -----------------------------------------------------------------------------
@@ -7,26 +8,22 @@ import pandas as pd
      - Comentar la funcion.
 
     Observaciones:
-     - Un nombre completo (Se puede filtrar si tiene un punto o no), 
-       realmente solo hay 2 nombres duplicados con punto: César Augusto 
-       Marín López y Diana Marcela Rengifo Arias.
-     - Hay 9 grupos con varios autores (Hay proyectos con varios integrantes)
+     - Corregir la base de datos: Nolberto Gutiérrez Posada - fila 54, la palabra 
+       clave "logistica" no tiene tilde y genera dos logisticas en el investigador.
 
     @author: Grimpoteuthis
 -----------------------------------------------------------------------------
 """
 
 def getFilteredData():
-    df = pd.read_excel("BasedeDatos_completa_2018_2021.xlsx") # "BasedeDatos_completa_2018_2021_corregida.xlsx"
+    df = pd.read_excel("BasedeDatos_completa_2018-2021.xlsx")
     columns = df.columns
     authors = df[columns[2]]
     authors_keywords = []
-    new_authors = []
-    groups_del = []
     AFK = {} 
     
     for author in authors:
-        filter_data = df.loc[df[columns[2]] == author, [columns[2], columns[9]]]
+        filter_data = df.loc[df[columns[2]] == author.rstrip(), [columns[2], columns[9]]]
         authors_keywords.append(filter_data)
     
     for author in authors_keywords:
@@ -34,22 +31,6 @@ def getFilteredData():
         for row in author.index:
             keywords.append(author.loc[row][columns[9]])
             AFK[author.loc[row][columns[2]]] = keywords
-
-
-    for group in AFK:
-        if '\n' in group:
-            for author in group.split('\n'):
-                try:
-                    AFK[author].append(','.join(AFK[group]))
-                except KeyError:
-                    new_authors.append([author, AFK[group]])
-            groups_del.append(group)
-
-    for key in groups_del:
-        AFK.pop(key)
-    
-    for author_add in new_authors:
-        AFK[author_add[0]] = author_add[1]
 
     for author in AFK:
         if len(AFK[author]) > 1:
@@ -71,7 +52,8 @@ def getFilteredData():
 
     zipped = list(zip(authors_z, keywords_z))
     rr = pd.DataFrame(zipped, columns=[columns[2], columns[9]])
-    print(rr)
+    #print(rr)
+    #print(len(rr[columns[2]].unique()))
 
 
 if __name__ == "__main__":
